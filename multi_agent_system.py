@@ -13,7 +13,7 @@ from rich.markdown import Markdown
 from rich import box
 
 from langchain_groq import ChatGroq
-from langchain.schema import HumanMessage
+from langchain_core.messages import HumanMessage
 from langgraph.graph import StateGraph, END
 
 # ─────────────────────────────────────────
@@ -79,7 +79,7 @@ def goal_analyzer(state: AgentState):
 
     User Input: {state['user_input']}
     """
-    response = llm([HumanMessage(content=prompt)])
+    response = llm.invoke([HumanMessage(content=prompt)])
     return {"analyzed_goal": response.content}
 
 
@@ -96,7 +96,7 @@ def planner_agent(state: AgentState):
     - Weekly breakdown
     - Daily tasks
     """
-    response = llm([HumanMessage(content=prompt)])
+    response = llm.invoke([HumanMessage(content=prompt)])
     return {"plan": response.content}
 
 
@@ -114,7 +114,7 @@ def resource_agent(state: AgentState):
     - Docs
     - Courses
     """
-    response = llm([HumanMessage(content=prompt)])
+    response = llm.invoke([HumanMessage(content=prompt)])
     return {"resources": response.content}
 
 
@@ -136,7 +136,7 @@ def reviewer_agent(state: AgentState):
     - Actionable
     - Motivating
     """
-    response = llm([HumanMessage(content=prompt)])
+    response = llm.invoke([HumanMessage(content=prompt)])
     return {"final_output": response.content}
 
 
@@ -191,7 +191,23 @@ def main():
         sys.exit(0)
 
     # Run pipeline
-    final_output = run_pipeline(user_input)
+    try:
+        final_output = run_pipeline(user_input)
+    except Exception as e:
+        err = str(e)
+        if "401" in err or "invalid_api_key" in err or "Authentication" in err:
+            console.print()
+            console.print(Panel(
+                "[bold red]Invalid or missing Groq API key.[/bold red]\n\n"
+                "Open [cyan].env[/cyan] and set your key:\n"
+                "  [green]GROQ_API_KEY=gsk_...[/green]\n\n"
+                "Get a free key at: [link=https://console.groq.com/keys]console.groq.com/keys[/link]",
+                title="[red]⛔  Authentication Error[/red]",
+                border_style="red",
+            ))
+        else:
+            console.print_exception()
+        sys.exit(1)
 
     # Output
     console.print()

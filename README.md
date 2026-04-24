@@ -61,7 +61,7 @@ cd AIStudyPlanner
 ### 2. Create a virtual environment (recommended)
 
 ```bash
-python -m venv venv
+python3 -m venv venv
 source venv/bin/activate   # Windows: venv\Scripts\activate
 ```
 
@@ -94,7 +94,7 @@ GROQ_API_KEY=gsk_xxxxxxxxxxxxxxxxxxxxxxxx
 ## 🚀 Usage
 
 ```bash
-python multi_agent_system.py
+python3 multi_agent_system.py
 ```
 
 Example session:
